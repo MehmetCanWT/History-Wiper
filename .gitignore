@@ -1,4 +1,4 @@
-# Logs
+# Logs and debug files
 logs
 *.log
 npm-debug.log*
@@ -7,10 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Build outputs
+# Build and distribution outputs
 dist
 dist-ssr
-*.local
+docs
+*.zip
+*.tar.gz
 
 # Dependency directories
 node_modules
@@ -25,14 +27,15 @@ node_modules
 *.sln
 *.sw?
 
-# OS metadata
+# OS and system metadata
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# TypeScript
+# TypeScript build info
 *.tsbuildinfo
 
-# Environment variables
+# Local environment and secrets
 .env
 .env.local
 .env.development.local

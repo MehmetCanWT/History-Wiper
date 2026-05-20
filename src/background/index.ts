@@ -36,7 +36,7 @@ const reportDeletedCount = async (count: number) => {
     const timestamp = Date.now();
     const signature = await computeSignature(count, timestamp, installationId);
 
-    const response = await fetch('https://api.historywiper.com/api/increment', {
+    const response = await fetch('https://history-wiper-api.mehmetcanwt.workers.dev/api/increment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

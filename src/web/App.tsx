@@ -32,7 +32,7 @@ export default function App() {
   useEffect(() => {
     const fetchRealStats = async () => {
       try {
-        const response = await fetch('https://api.historywiper.com/api/stats');
+        const response = await fetch('https://history-wiper-api.mehmetcanwt.workers.dev/api/stats');
         if (response.ok) {
           const data = await response.json();
           const realCount = data?.totalDeleted ?? data?.count ?? data?.total ?? data?.data?.totalDeleted;
@@ -273,27 +273,98 @@ export default function App() {
       </main>
 
       {/* Global Impact Stats Counter */}
-      <section id="stats" className="py-16 bg-slate-950/40 border-y border-slate-900 relative">
+      <section id="stats" className="py-20 bg-slate-950/40 border-y border-slate-900 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="font-outfit font-extrabold text-2xl sm:text-3xl text-white tracking-tight">
-              Global Community Protection
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full text-xs font-semibold text-blue-400 mb-3">
+              <ShieldCheck className="w-4 h-4 text-blue-400 animate-pulse" />
+              Verified Telemetry
+            </div>
+            <h2 className="font-outfit font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+              Official Global Impact
             </h2>
-            <p className="text-sm text-slate-400 mt-2">
-              Real-time collective cleanups reported anonymously by our global user base.
+            <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+              Real-time collective cleanups reported anonymously by our global user base and cryptographically signed to ensure absolute database integrity.
             </p>
           </div>
 
-          <div className="max-w-md mx-auto bg-slate-900/50 backdrop-blur-md p-8 rounded-3xl border border-slate-800/80 text-center shadow-xl">
-            <div className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Total Deleted Worldwide</div>
-            {/* Rolling numbers */}
-            <div className={`flex items-center justify-center gap-1.5 font-outfit font-black text-4xl sm:text-5xl text-blue-500 tracking-tight transition-transform duration-100 ${isCounterPulsing ? 'scale-105' : ''}`}>
-              <ShieldCheck className="w-8 h-8 text-blue-500 mr-1 shrink-0" />
-              <span>{globalCounter.toLocaleString()}</span>
+          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
+            {/* Left: The Big Counter */}
+            <div className="md:col-span-7 bg-slate-900/40 backdrop-blur-md p-8 rounded-3xl border border-slate-800/80 flex flex-col justify-center items-center text-center shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
+              
+              <span className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-3">Total Deleted Worldwide</span>
+              
+              {/* Rolling numbers with glow */}
+              <div className={`flex items-center justify-center gap-2 font-outfit font-black text-5xl sm:text-6xl text-blue-500 tracking-tight transition-transform duration-200 ${isCounterPulsing ? 'scale-105 filter drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]' : ''}`}>
+                <ShieldCheck className="w-10 h-10 text-blue-500 shrink-0" />
+                <span>{globalCounter.toLocaleString()}</span>
+              </div>
+              
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  Live Telemetry Active
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-850 text-slate-400 border border-slate-800 text-xs font-semibold">
+                  Update Interval: 30s
+                </span>
+              </div>
             </div>
-            <div className="text-[10px] text-slate-500 font-semibold uppercase mt-3 tracking-wider flex items-center justify-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-              Live Counter Ticker Enabled
+
+            {/* Right: Security & Deployment Status Verification */}
+            <div className="md:col-span-5 bg-slate-900/20 backdrop-blur-sm p-8 rounded-3xl border border-slate-900 flex flex-col justify-between shadow-xl">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
+                  Official Verification Node
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start gap-4 text-xs border-b border-slate-900 pb-3">
+                    <span className="text-slate-500 font-medium">Telemetry API URL:</span>
+                    <a 
+                      href="https://history-wiper-api.mehmetcanwt.workers.dev/api/stats" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-blue-400 hover:text-blue-300 font-mono transition-colors flex items-center gap-1 truncate max-w-[200px]"
+                    >
+                      history-wiper-api...stats
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  </div>
+
+                  <div className="flex justify-between items-start gap-4 text-xs border-b border-slate-900 pb-3">
+                    <span className="text-slate-500 font-medium">Deployment Host:</span>
+                    <a 
+                      href="https://mehmetcanwt.github.io/History-Wiper/" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-slate-300 hover:text-white transition-colors flex items-center gap-1 truncate font-semibold"
+                    >
+                      mehmetcanwt.github.io
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs border-b border-slate-900 pb-3">
+                    <span className="text-slate-500 font-medium">Security Protocol:</span>
+                    <span className="text-indigo-400 font-bold bg-indigo-500/5 px-2 py-0.5 rounded border border-indigo-500/10">SHA-256 HMAC</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 font-medium">Database Node:</span>
+                    <span className="text-emerald-400 font-bold bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10">Cloudflare KV DB</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 p-3 bg-slate-950/60 rounded-2xl border border-slate-900 flex items-start gap-3">
+                <AlertCircle className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <p className="text-[10px] text-slate-500 leading-normal">
+                  All counters are authenticated in real-time. Spam payloads without correct cryptographic salt signatures are silently shadow-banned to prevent statistics inflation.
+                </p>
+              </div>
             </div>
           </div>
         </div>
