@@ -24,14 +24,15 @@ const App: React.FC = () => {
 
   const handleAddUrl = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUrl || !settings) return;
+    const trimmedUrl = newUrl.trim();
+    if (!trimmedUrl || !settings) return;
 
-    if (settings.urls.includes(newUrl)) {
+    if (settings.urls.includes(trimmedUrl)) {
       showStatus('error', 'URL already exists in list');
       return;
     }
 
-    const updated = { ...settings, urls: [...settings.urls, newUrl] };
+    const updated = { ...settings, urls: [...settings.urls, trimmedUrl] };
     await saveSettings(updated);
     setSettings(updated);
     setNewUrl('');
@@ -51,21 +52,42 @@ const App: React.FC = () => {
     const updated = { ...settings, interval };
     await saveSettings(updated);
     setSettings(updated);
-    chrome.runtime.sendMessage({ type: 'UPDATE_SETTINGS' });
-    showStatus('success', 'Wipe interval updated');
+    
+    try {
+      chrome.runtime.sendMessage({ type: 'UPDATE_SETTINGS' }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.warn("Could not notify background worker:", chrome.runtime.lastError.message);
+        }
+        showStatus('success', 'Wipe interval updated');
+      });
+    } catch (err) {
+      console.warn("Failed to communicate settings update to background worker:", err);
+      showStatus('success', 'Wipe interval updated');
+    }
   };
 
   const handleManualWipe = async () => {
     setIsWiping(true);
-    chrome.runtime.sendMessage({ type: 'MANUAL_WIPE' }, (response) => {
+    try {
+      chrome.runtime.sendMessage({ type: 'MANUAL_WIPE' }, (response) => {
+        setIsWiping(false);
+        if (chrome.runtime.lastError) {
+          console.error("Communication error during wipe:", chrome.runtime.lastError.message);
+          showStatus('error', 'Failed to connect to background service');
+          return;
+        }
+        if (response?.success) {
+          showStatus('success', 'History wiped successfully');
+          loadSettings();
+        } else {
+          showStatus('error', response?.error || 'Failed to wipe history');
+        }
+      });
+    } catch (err) {
       setIsWiping(false);
-      if (response?.success) {
-        showStatus('success', 'History wiped successfully');
-        loadSettings();
-      } else {
-        showStatus('error', 'Failed to wipe history');
-      }
-    });
+      showStatus('error', 'Failed to trigger background wipe');
+      console.error("Failed to call manual wipe:", err);
+    }
   };
 
   if (!settings) return <div className="p-8 text-center text-gray-500">Loading...</div>;

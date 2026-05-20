@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS: Settings = {
 
 export const getSettings = async (): Promise<Settings> => {
   const result = await chrome.storage.local.get(['settings']);
-  return result.settings || DEFAULT_SETTINGS;
+  return { ...DEFAULT_SETTINGS, ...result.settings };
 };
 
 export const saveSettings = async (settings: Settings): Promise<void> => {
