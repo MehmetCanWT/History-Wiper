@@ -28,15 +28,39 @@ export default function App() {
   // FAQ Accordion State
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
-  // Ticker Logic
+  // Fetch real count from telemetry API on mount
   useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchRealStats = async () => {
+      try {
+        const response = await fetch('https://api.historywiper.com/api/stats');
+        if (response.ok) {
+          const data = await response.json();
+          const realCount = data?.totalDeleted ?? data?.count ?? data?.total ?? data?.data?.totalDeleted;
+          if (typeof realCount === 'number' && realCount > 0) {
+            setGlobalCounter(realCount);
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch real telemetry stats from server, falling back to offline ticker:", err);
+      }
+    };
+
+    fetchRealStats();
+    // Keep checking every 30 seconds for new database updates
+    const statsInterval = setInterval(fetchRealStats, 30000);
+
+    // Dynamic local ticks to keep the counter animated in real-time
+    const liveTickInterval = setInterval(() => {
       const randomInc = Math.floor(Math.random() * 4) + 1;
       setGlobalCounter(prev => prev + randomInc);
       setIsCounterPulsing(true);
       setTimeout(() => setIsCounterPulsing(false), 200);
     }, 3500);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(statsInterval);
+      clearInterval(liveTickInterval);
+    };
   }, []);
 
   // Simulator Logic
@@ -60,8 +84,8 @@ export default function App() {
 
   // Mock Active Watchlist Items
   const watchlist = [
-    { name: 'pornhub.com', type: 'URL' },
-    { name: 'erome.com', type: 'URL' },
+    { name: 'instagram.com', type: 'URL' },
+    { name: 'facebook.com', type: 'URL' },
     { name: 'aşk', type: 'Keyword' },
   ];
 
@@ -207,7 +231,7 @@ export default function App() {
                   {/* Watchlist items list mock */}
                   <div className="mb-4 bg-slate-900/40 p-3 rounded-xl border border-slate-800/60">
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Active Keywords</div>
-                    <div className="space-y-1.5 max-h-[85px] overflow-y-auto pr-1 text-xs">
+                    <div className="space-y-1.5 max-h-[85px] overflow-y-auto pr-1 text-xs scrollbar-none">
                       {watchlist.map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center p-2 bg-slate-900/80 rounded-lg border border-slate-800/50">
                           <span className="text-slate-300 truncate max-w-[70%] font-medium">{item.name}</span>
