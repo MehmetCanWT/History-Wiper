@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "History Wiper",
+  "description": "Automatically clears specific URLs from your browser history.",
+  "version": "1.0.0",
+  "action": {
+    "default_title": "History Wiper"
+  },
+  "options_page": "index.html",
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "permissions": [
+    "history",
+    "storage",
+    "alarms"
+  ],
+  "icons": {
+    "128": "public/logo.png"
+  }
+}
