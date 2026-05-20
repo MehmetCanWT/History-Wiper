@@ -32,7 +32,7 @@ export default function App() {
   useEffect(() => {
     const fetchRealStats = async () => {
       try {
-        const response = await fetch('https://history-wiper-api.mehmetcanwt.workers.dev/api/stats');
+        const response = await fetch('https://history-wiper-api.trwinner9.workers.dev/api/stats');
         if (response.ok) {
           const data = await response.json();
           const realCount = data?.totalDeleted ?? data?.count ?? data?.total ?? data?.data?.totalDeleted;
@@ -324,7 +324,7 @@ export default function App() {
                   <div className="flex justify-between items-start gap-4 text-xs border-b border-slate-900 pb-3">
                     <span className="text-slate-500 font-medium">Telemetry API URL:</span>
                     <a 
-                      href="https://history-wiper-api.mehmetcanwt.workers.dev/api/stats" 
+                      href="https://history-wiper-api.trwinner9.workers.dev/api/stats" 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="text-blue-400 hover:text-blue-300 font-mono transition-colors flex items-center gap-1 truncate max-w-[200px]"

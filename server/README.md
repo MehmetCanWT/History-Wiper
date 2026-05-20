@@ -40,5 +40,5 @@ If you want to start your worldwide counter at a specific number (like `1,842,91
 ---
 
 🚀 **All Set!** 
-Your backend is live at: `https://history-wiper-api.mehmetcanwt.workers.dev`.
+Your backend is live at: `https://history-wiper-api.trwinner9.workers.dev`.
 The extension background script and React landing page are already configured to connect to this API endpoint to serve and increment authentic deletion statistics officially!
