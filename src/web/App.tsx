@@ -36,8 +36,14 @@ export default function App() {
         if (response.ok) {
           const data = await response.json();
           const realCount = data?.totalDeleted ?? data?.count ?? data?.total ?? data?.data?.totalDeleted;
-          if (typeof realCount === 'number' && realCount > 0) {
-            setGlobalCounter(realCount);
+          if (typeof realCount === 'number') {
+            setGlobalCounter(prev => {
+              if (prev !== realCount) {
+                setIsCounterPulsing(true);
+                setTimeout(() => setIsCounterPulsing(false), 200);
+              }
+              return realCount;
+            });
           }
         }
       } catch (err) {
@@ -49,17 +55,8 @@ export default function App() {
     // Keep checking every 30 seconds for new database updates
     const statsInterval = setInterval(fetchRealStats, 30000);
 
-    // Dynamic local ticks to keep the counter animated in real-time
-    const liveTickInterval = setInterval(() => {
-      const randomInc = Math.floor(Math.random() * 4) + 1;
-      setGlobalCounter(prev => prev + randomInc);
-      setIsCounterPulsing(true);
-      setTimeout(() => setIsCounterPulsing(false), 200);
-    }, 3500);
-
     return () => {
       clearInterval(statsInterval);
-      clearInterval(liveTickInterval);
     };
   }, []);
 
