@@ -4,9 +4,10 @@
   "description": "Automatically clears specific URLs from your browser history.",
   "version": "1.0.0",
   "action": {
-    "default_title": "History Wiper"
+    "default_title": "History Wiper",
+    "default_popup": "popup.html"
   },
-  "options_page": "index.html",
+  "options_page": "options.html",
   "background": {
     "service_worker": "src/background/index.ts",
     "type": "module"

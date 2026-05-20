@@ -3,12 +3,16 @@ export interface Settings {
   interval: number; // in hours
   lastRun?: number;
   totalDeleted: number;
+  shareGlobalStats: boolean;
+  darkMode: boolean;
 }
 
 const DEFAULT_SETTINGS: Settings = {
   urls: [],
   interval: 1,
-  totalDeleted: 0
+  totalDeleted: 0,
+  shareGlobalStats: true,
+  darkMode: false
 };
 
 export const getSettings = async (): Promise<Settings> => {
