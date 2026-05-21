@@ -130,7 +130,7 @@ export default function App() {
             <a href="#faq" className="hover:text-blue-500 transition-colors">FAQ</a>
           </nav>
           <div className="flex items-center gap-4">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white transition-colors">
+            <a href="https://github.com/MehmetCanWT/History-Wiper" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white transition-colors">
               <Github className="w-6 h-6" />
             </a>
             <a href="#download" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]">
