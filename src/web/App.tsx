@@ -533,7 +533,7 @@ export default function App() {
             <p>&copy; 2026 History Wiper. Built with premium local privacy security guidelines.</p>
           </div>
           <div className="flex items-center gap-6">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300">GitHub</a>
+            <a href="https://github.com/MehmetCanWT/History-Wiper" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300">GitHub</a>
             <a href="https://github.com/MehmetCanWT/History-Wiper/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300">Privacy Policy</a>
           </div>
         </div>
