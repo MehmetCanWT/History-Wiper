@@ -507,7 +507,7 @@ export default function App() {
           </p>
           <div className="pt-4">
             <a 
-              href="https://chrome.google.com/webstore" 
+              href="https://chromewebstore.google.com/detail/history-wiper/ecnnlpkpbhendaodeanheimjpcdpccib" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:opacity-95 text-white font-bold text-lg px-10 py-5 rounded-2xl shadow-2xl shadow-blue-500/20 active:scale-[0.98] transition-all"
