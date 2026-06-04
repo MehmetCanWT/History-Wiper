@@ -1,5 +1,6 @@
 export interface Settings {
   urls: string[];
+  whitelist: string[];
   interval: number; // in hours
   lastRun?: number;
   totalDeleted: number;
@@ -9,9 +10,10 @@ export interface Settings {
 
 const DEFAULT_SETTINGS: Settings = {
   urls: [],
+  whitelist: [],
   interval: 1,
   totalDeleted: 0,
-  shareGlobalStats: true,
+  shareGlobalStats: false,
   darkMode: false
 };
 
@@ -35,6 +37,20 @@ export const addUrl = async (url: string): Promise<void> => {
 export const removeUrl = async (url: string): Promise<void> => {
   const settings = await getSettings();
   settings.urls = settings.urls.filter(u => u !== url);
+  await saveSettings(settings);
+};
+
+export const addWhitelistUrl = async (url: string): Promise<void> => {
+  const settings = await getSettings();
+  if (!settings.whitelist.includes(url)) {
+    settings.whitelist.push(url);
+    await saveSettings(settings);
+  }
+};
+
+export const removeWhitelistUrl = async (url: string): Promise<void> => {
+  const settings = await getSettings();
+  settings.whitelist = settings.whitelist.filter(u => u !== url);
   await saveSettings(settings);
 };
 

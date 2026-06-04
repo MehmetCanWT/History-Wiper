@@ -69,7 +69,8 @@ Because History Wiper requests the `history` and `storage` permissions, Google r
 * **Permission Justification:**
   * `history` - `"To query and delete matching history entries from the local browser storage as customized by the user."`
   * `storage` - `"To store the user's custom watchlist patterns, interval settings, and local stats count securely."`
-* **Data Usage:** Select that you do **not** sell user data, do **not** use it for advertising, and process everything locally.
+* **Data Usage:** Select that you do **not** sell user data, do **not** use it for advertising, do **not** use it for personalized credit or lending, and process everything locally.
+* **Limited Use Compliance:** Google requires developer disclosure for the User Data Policy. Declare that the extension complies with the Limited Use requirements. Your privacy policy must (and does) include this statement: `"The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements."`
 * **Privacy Policy URL:** Enter your official GitHub Pages URL:
   `https://mehmetcanwt.github.io/History-Wiper/` (or `https://github.com/MehmetCanWT/History-Wiper/blob/main/PRIVACY.md`).
 

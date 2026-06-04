@@ -1,10 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Clock, History, CheckCircle, AlertCircle, Play, Globe, Sun, Moon } from 'lucide-react';
+import { 
+  Trash2, 
+  Plus, 
+  Clock, 
+  History, 
+  CheckCircle, 
+  AlertCircle, 
+  Play, 
+  Globe, 
+  Sun, 
+  Moon, 
+  Download, 
+  Upload, 
+  ShieldAlert,
+  ShieldCheck
+} from 'lucide-react';
 import { getSettings, saveSettings, Settings } from '../storage';
 
 const App: React.FC = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [newUrl, setNewUrl] = useState('');
+  const [newWhitelistUrl, setNewWhitelistUrl] = useState('');
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isWiping, setIsWiping] = useState(false);
 
@@ -41,8 +57,13 @@ const App: React.FC = () => {
     const trimmedUrl = newUrl.trim();
     if (!trimmedUrl || !settings) return;
 
+    if (trimmedUrl.length < 2) {
+      showStatus('error', 'Keyword/URL must be at least 2 characters');
+      return;
+    }
+
     if (settings.urls.includes(trimmedUrl)) {
-      showStatus('error', 'URL already exists in list');
+      showStatus('error', 'URL/Keyword already exists in watch list');
       return;
     }
 
@@ -50,7 +71,7 @@ const App: React.FC = () => {
     await saveSettings(updated);
     setSettings(updated);
     setNewUrl('');
-    showStatus('success', 'URL added successfully');
+    showStatus('success', 'URL/Keyword added to watchlist');
   };
 
   const handleRemoveUrl = async (url: string) => {
@@ -58,7 +79,39 @@ const App: React.FC = () => {
     const updated = { ...settings, urls: settings.urls.filter(u => u !== url) };
     await saveSettings(updated);
     setSettings(updated);
-    showStatus('success', 'URL removed');
+    showStatus('success', 'URL/Keyword removed');
+  };
+
+  const handleAddWhitelistUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedUrl = newWhitelistUrl.trim();
+    if (!trimmedUrl || !settings) return;
+
+    if (trimmedUrl.length < 2) {
+      showStatus('error', 'Exclusion must be at least 2 characters');
+      return;
+    }
+
+    const currentWhitelist = settings.whitelist || [];
+    if (currentWhitelist.includes(trimmedUrl)) {
+      showStatus('error', 'Exclusion already exists');
+      return;
+    }
+
+    const updated = { ...settings, whitelist: [...currentWhitelist, trimmedUrl] };
+    await saveSettings(updated);
+    setSettings(updated);
+    setNewWhitelistUrl('');
+    showStatus('success', 'Exclusion keyword added to whitelist');
+  };
+
+  const handleRemoveWhitelistUrl = async (url: string) => {
+    if (!settings) return;
+    const currentWhitelist = settings.whitelist || [];
+    const updated = { ...settings, whitelist: currentWhitelist.filter(u => u !== url) };
+    await saveSettings(updated);
+    setSettings(updated);
+    showStatus('success', 'Exclusion removed');
   };
 
   const handleIntervalChange = async (interval: number) => {
@@ -121,6 +174,57 @@ const App: React.FC = () => {
     showStatus('success', `${darkMode ? 'Dark' : 'Light'} mode enabled`);
   };
 
+  const handleExportConfig = () => {
+    if (!settings) return;
+    const configData = JSON.stringify({
+      urls: settings.urls,
+      whitelist: settings.whitelist || [],
+      interval: settings.interval
+    }, null, 2);
+    const blob = new Blob([configData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'history-wiper-config.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showStatus('success', 'Configuration exported successfully!');
+  };
+
+  const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !settings) return;
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        const importedUrls = Array.isArray(json.urls) ? json.urls.map(String) : [];
+        const importedWhitelist = Array.isArray(json.whitelist) ? json.whitelist.map(String) : [];
+        const importedInterval = typeof json.interval === 'number' ? json.interval : settings.interval;
+
+        const mergedUrls = Array.from(new Set([...settings.urls, ...importedUrls]));
+        const mergedWhitelist = Array.from(new Set([...(settings.whitelist || []), ...importedWhitelist]));
+
+        const updated = {
+          ...settings,
+          urls: mergedUrls,
+          whitelist: mergedWhitelist,
+          interval: importedInterval
+        };
+        await saveSettings(updated);
+        setSettings(updated);
+        showStatus('success', 'Configuration imported successfully!');
+      } catch (err) {
+        console.error("Failed to parse config file:", err);
+        showStatus('error', 'Invalid configuration file format');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   if (!settings) return <div className="p-8 text-center text-gray-500 font-medium">Loading...</div>;
 
   return (
@@ -167,50 +271,108 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Controls */}
           <div className="md:col-span-2 space-y-6">
-            {/* Add URL Form */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-blue-500" /> Add URL to Watch
-              </h2>
-              <form onSubmit={handleAddUrl} className="flex gap-2">
-                <input
-                  type="text"
-                  value={newUrl}
-                  onChange={(e) => setNewUrl(e.target.value)}
-                  placeholder="example.com or keyword"
-                  className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
-                />
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-100 dark:shadow-none shrink-0"
-                >
-                  Add
-                </button>
-              </form>
+            {/* Watchlist Section */}
+            <div className="space-y-6">
+              {/* Add URL Form */}
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                  <Plus className="w-5 h-5 text-blue-500" /> Add URL to Watch
+                </h2>
+                <form onSubmit={handleAddUrl} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newUrl}
+                    onChange={(e) => setNewUrl(e.target.value)}
+                    placeholder="example.com or keyword (min 2 chars)"
+                    className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-100 dark:shadow-none shrink-0"
+                  >
+                    Add
+                  </button>
+                </form>
+              </div>
+
+              {/* URL List */}
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center justify-between">
+                  <span>Watched URLs & Keywords</span>
+                  <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-gray-500 dark:text-gray-400">{settings.urls.length} items</span>
+                </h2>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {settings.urls.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400 dark:text-gray-500 italic">No URLs added yet.</div>
+                  ) : (
+                    settings.urls.map((url) => (
+                      <div key={url} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/40 border border-gray-100/50 dark:border-gray-800/80 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition-all duration-200 group">
+                        <span className="text-gray-700 dark:text-gray-200 font-medium truncate max-w-[80%]">{url}</span>
+                        <button
+                          onClick={() => handleRemoveUrl(url)}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* URL List */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center justify-between">
-                <span>Watched URLs</span>
-                <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-gray-500 dark:text-gray-400">{settings.urls.length} items</span>
-              </h2>
-              <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                {settings.urls.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400 dark:text-gray-500 italic">No URLs added yet.</div>
-                ) : (
-                  settings.urls.map((url) => (
-                    <div key={url} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/40 border border-gray-100/50 dark:border-gray-800/80 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition-all duration-200 group">
-                      <span className="text-gray-700 dark:text-gray-200 font-medium truncate max-w-[80%]">{url}</span>
-                      <button
-                        onClick={() => handleRemoveUrl(url)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))
-                )}
+            {/* Whitelist (Exclusion List) Section */}
+            <div className="space-y-6">
+              {/* Add Whitelist Form */}
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-500" /> Add URL to Exclude
+                </h2>
+                <form onSubmit={handleAddWhitelistUrl} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newWhitelistUrl}
+                    onChange={(e) => setNewWhitelistUrl(e.target.value)}
+                    placeholder="google.com or critical-keyword (min 2 chars)"
+                    className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-emerald-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-100 dark:shadow-none shrink-0"
+                  >
+                    Exclude
+                  </button>
+                </form>
+              </div>
+
+              {/* Whitelist List */}
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center justify-between">
+                  <span>Excluded URLs & Keywords</span>
+                  <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-gray-500 dark:text-gray-400">
+                    {(settings.whitelist || []).length} items
+                  </span>
+                </h2>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-3 leading-relaxed">
+                  URLs or page titles containing these keywords will never be deleted, even if they match items on your Watched watchlist.
+                </p>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {!settings.whitelist || settings.whitelist.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400 dark:text-gray-500 italic">No exclusions added yet.</div>
+                  ) : (
+                    settings.whitelist.map((url) => (
+                      <div key={url} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/40 border border-gray-100/50 dark:border-gray-800/80 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition-all duration-200 group">
+                        <span className="text-gray-700 dark:text-gray-200 font-medium truncate max-w-[80%]">{url}</span>
+                        <button
+                          onClick={() => handleRemoveWhitelistUrl(url)}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -259,6 +421,31 @@ const App: React.FC = () => {
               </p>
             </div>
  
+            {/* Backup & Restore Card */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                <Download className="w-5 h-5 text-blue-500" /> Backup & Restore
+              </h2>
+              <div className="space-y-3">
+                <button
+                  onClick={handleExportConfig}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 dark:border-gray-750 text-gray-750 dark:text-gray-200 font-semibold text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm active:scale-[0.98]"
+                >
+                  <Download className="w-4 h-4" /> Export Configuration
+                </button>
+                
+                <label className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 font-semibold text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer shadow-sm active:scale-[0.98]">
+                  <Upload className="w-4 h-4" /> Import Configuration
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportConfig}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+
             <button
               onClick={handleManualWipe}
               disabled={isWiping || settings.urls.length === 0}
@@ -281,6 +468,19 @@ const App: React.FC = () => {
                 <span className="text-xs">Last wipe: {new Date(settings.lastRun).toLocaleString()}</span>
               </div>
             )}
+
+            {/* Privacy & Compliance Card */}
+            <div className="bg-gray-50/50 dark:bg-gray-950/20 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/60 transition-colors duration-200">
+              <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+                Privacy & Google API Compliance
+              </h3>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal mb-2">
+                The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.
+              </p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                All scanning and deletion occurs 100% locally in your browser. Your URLs and keywords are never collected or shared.
+              </p>
+            </div>
           </div>
         </div>
       </div>

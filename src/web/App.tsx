@@ -11,7 +11,8 @@ import {
   Github, 
   ExternalLink,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Download
 } from 'lucide-react';
 
 export default function App() {
@@ -97,7 +98,7 @@ export default function App() {
     },
     {
       q: "What is the Global Deletion Counter?",
-      a: "It is a voluntary, anonymous ticker that aggregates the collective cleanups performed by our global community. When active, it sends only a simple numerical sum (e.g. +5) along with a tamper-proof cryptographic signature and timestamp to prevent spam. No private data is ever leaked, and it can be disabled in settings at any time."
+      a: "It is a voluntary, anonymous ticker that aggregates the collective cleanups performed by our global community. It is disabled by default and only active if you explicitly opt-in via the settings page. When active, it sends only a simple numerical sum (e.g. +5) along with a tamper-proof cryptographic signature and timestamp to prevent spam. No private data or browsing history is ever transmitted, and it can be enabled or disabled in settings at any time."
     },
     {
       q: "How does the Accident Protection prevent accidental clearings?",
@@ -380,7 +381,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Card 1 */}
             <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/80 hover:border-slate-700/60 hover:-translate-y-1 transition-all duration-300 group">
               <div className="bg-blue-500/10 p-3.5 rounded-xl text-blue-500 w-fit mb-5 group-hover:scale-110 transition-transform">
@@ -406,6 +407,28 @@ export default function App() {
             {/* Card 3 */}
             <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/80 hover:border-slate-700/60 hover:-translate-y-1 transition-all duration-300 group">
               <div className="bg-emerald-500/10 p-3.5 rounded-xl text-emerald-400 w-fit mb-5 group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-outfit font-bold text-lg text-white mb-2">Exclusion List (Whitelist)</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Prevent critical pages from deletion. Add important URLs or keywords to a whitelist that overrides the watched list rules.
+              </p>
+            </div>
+
+            {/* Card 4 */}
+            <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/80 hover:border-slate-700/60 hover:-translate-y-1 transition-all duration-300 group">
+              <div className="bg-blue-500/10 p-3.5 rounded-xl text-blue-500 w-fit mb-5 group-hover:scale-110 transition-transform">
+                <Download className="w-6 h-6" />
+              </div>
+              <h3 className="font-outfit font-bold text-lg text-white mb-2">JSON Configuration Backup</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Safely export your watchlist and exclusions to a local JSON file. Easily import settings to migrate or restore your configuration anytime.
+              </p>
+            </div>
+
+            {/* Card 5 */}
+            <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/80 hover:border-slate-700/60 hover:-translate-y-1 transition-all duration-300 group">
+              <div className="bg-emerald-500/10 p-3.5 rounded-xl text-emerald-400 w-fit mb-5 group-hover:scale-110 transition-transform">
                 <ShieldAlert className="w-6 h-6" />
               </div>
               <h3 className="font-outfit font-bold text-lg text-white mb-2">Accident Safety Guard</h3>
@@ -414,7 +437,7 @@ export default function App() {
               </p>
             </div>
 
-            {/* Card 4 */}
+            {/* Card 6 */}
             <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/80 hover:border-slate-700/60 hover:-translate-y-1 transition-all duration-300 group">
               <div className="bg-blue-500/10 p-3.5 rounded-xl text-blue-400 w-fit mb-5 group-hover:scale-110 transition-transform">
                 <Lock className="w-6 h-6" />
@@ -529,8 +552,11 @@ export default function App() {
             </div>
             <span className="font-outfit font-bold text-sm tracking-tight text-white">History Wiper</span>
           </div>
-          <div>
+          <div className="flex flex-col gap-1 items-center md:items-start max-w-lg">
             <p>&copy; 2026 History Wiper. Built with premium local privacy security guidelines.</p>
+            <p className="text-[10px] text-slate-600 leading-normal">
+              The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.
+            </p>
           </div>
           <div className="flex items-center gap-6">
             <a href="https://github.com/MehmetCanWT/History-Wiper" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300">GitHub</a>

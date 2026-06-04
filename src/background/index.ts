@@ -64,6 +64,8 @@ const wipeHistory = async (): Promise<number> => {
     const settings = await getSettings();
     if (settings.urls.length === 0) return 0;
 
+    const uniqueItemsToDelete = new Map<string, chrome.history.HistoryItem>();
+
     for (const urlPattern of settings.urls) {
       const trimmedPattern = urlPattern.trim().toLowerCase();
       if (trimmedPattern.length < 2) {
@@ -87,16 +89,33 @@ const wipeHistory = async (): Promise<number> => {
           const titleMatches = item.title && item.title.toLowerCase().includes(trimmedPattern);
 
           if (urlMatches || titleMatches) {
-            try {
-              await chrome.history.deleteUrl({ url: item.url });
-              totalDeletedThisRun++;
-            } catch (err) {
-              console.error(`Failed to delete URL: ${item.url}`, err);
+            // Whitelist exclusion guard
+            const isWhitelisted = settings.whitelist && settings.whitelist.some(whitelistPattern => {
+              const trimmedWhitelist = whitelistPattern.trim().toLowerCase();
+              if (trimmedWhitelist.length < 2) return false;
+              const wlUrlMatches = item.url && item.url.toLowerCase().includes(trimmedWhitelist);
+              const wlTitleMatches = item.title && item.title.toLowerCase().includes(trimmedWhitelist);
+              return wlUrlMatches || wlTitleMatches;
+            });
+
+            if (!isWhitelisted) {
+              uniqueItemsToDelete.set(item.url, item);
             }
           }
         }
       } catch (err) {
         console.error(`Failed searching history for pattern "${urlPattern}":`, err);
+      }
+    }
+
+    if (uniqueItemsToDelete.size > 0) {
+      for (const [url] of uniqueItemsToDelete) {
+        try {
+          await chrome.history.deleteUrl({ url });
+          totalDeletedThisRun++;
+        } catch (err) {
+          console.error(`Failed to delete URL: ${url}`, err);
+        }
       }
     }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, History, Settings, CheckCircle, AlertCircle, Play } from 'lucide-react';
+import { History, Settings, CheckCircle, Play } from 'lucide-react';
 import { getSettings, Settings as SettingsType } from '../storage';
 
 const App: React.FC = () => {
